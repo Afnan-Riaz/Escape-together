@@ -1,4 +1,0 @@
-repository "Escape together/Escape together@18968238261336@cloud"
-  path "/"
-    br "/main"
-    co "/main"
