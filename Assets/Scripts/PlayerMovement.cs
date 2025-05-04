@@ -93,5 +93,27 @@ public class PlayerMovement : MonoBehaviour
         // Cast a ray downward from slightly above the player's position (to check if the player is on the ground)
         return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 0.1f + 0.01f);
     }
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        Rigidbody body = hit.collider.attachedRigidbody;
+        Debug.Log("Hit: " + hit.collider.name);
+        // Only push if it's a rigidbody and not kinematic
+        if (body == null || body.isKinematic) return;
+
+        // Don't push objects below us (like the floor)
+        if (hit.moveDirection.y < -0.3f) return;
+
+        // Apply push force
+        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);
+        pushDir.Normalize();
+        float maxVelocity = 2f; // Maximum allowed velocity
+        float pushForce = 2f;   // Force to apply
+
+        // Check the current velocity of the object
+        if (body.linearVelocity.magnitude < maxVelocity)
+        {
+            body.AddForceAtPosition(pushDir * pushForce, hit.point, ForceMode.Impulse);
+        }
+    }
 
 }

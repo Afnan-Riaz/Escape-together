@@ -2,16 +2,14 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public Transform door;                     // Assign the child door mesh here
+    public Transform door;
     public bool isUnlocked = false;
-    public float openAngle = 90f;
-    public float openSpeed = 2f;
-    public Vector3 hingeOffset = Vector3.zero; // Adjust this if needed
-    public HingeJoint hingeJoint; // Assigned from child door
+    public Vector3 closedRotation;
+    public Vector3 openedRotation;
+    public float speed = 2f;
 
     private bool isOpening = false;
-    private float rotatedAngle = 0f;
-    private Rigidbody doorRb;
+    private bool isClosing = false;
 
     void Start()
     {
@@ -21,17 +19,8 @@ public class Door : MonoBehaviour
             return;
         }
 
-        doorRb = door.GetComponent<Rigidbody>();
-
-        if (doorRb == null)
-        {
-            Debug.LogError("Rigidbody missing on the child door object.");
-            return;
-        }
-
-        // Lock it at start
-        doorRb.isKinematic = true;
-        doorRb.constraints = RigidbodyConstraints.FreezeAll;
+        // Initialize the door to its closed state
+        door.localRotation = Quaternion.Euler(closedRotation);
     }
 
     public void Unlock()
@@ -39,32 +28,34 @@ public class Door : MonoBehaviour
         if (isUnlocked) return;
         isUnlocked = true;
         isOpening = true;
+        isClosing = false;
+    }
+
+    public void Close()
+    {
+        if (!isUnlocked) return;
+        isOpening = false;
+        isClosing = true;
     }
 
     void Update()
     {
-        if (isOpening && door != null)
+        if (isOpening)
         {
-            float deltaAngle = openSpeed * Time.deltaTime;
-            Vector3 pivotPoint = transform.position + hingeOffset;
+            door.localRotation = Quaternion.Lerp(door.localRotation, Quaternion.Euler(openedRotation), Time.deltaTime * speed);
 
-            door.RotateAround(pivotPoint, Vector3.up, deltaAngle);
-            rotatedAngle += deltaAngle;
-
-            if (rotatedAngle >= openAngle)
+            if (Quaternion.Angle(door.localRotation, Quaternion.Euler(openedRotation)) < 0.1f)
             {
-                float overshoot = rotatedAngle - openAngle;
-                door.RotateAround(pivotPoint, Vector3.up, -overshoot);
-                rotatedAngle = openAngle;
-                isOpening = false; 
+                isOpening = false;
+            }
+        }
+        else if (isClosing)
+        {
+            door.localRotation = Quaternion.Lerp(door.localRotation, Quaternion.Euler(closedRotation), Time.deltaTime * speed);
 
-                // Activate physics, allow only Y-axis rotation
-                doorRb.isKinematic = true; //Changed this to true
-                doorRb.constraints = RigidbodyConstraints.FreezePositionX |
-                                     RigidbodyConstraints.FreezePositionY |
-                                     RigidbodyConstraints.FreezePositionZ |
-                                     RigidbodyConstraints.FreezeRotationX |
-                                     RigidbodyConstraints.FreezeRotationZ;
+            if (Quaternion.Angle(door.localRotation, Quaternion.Euler(closedRotation)) < 0.1f)
+            {
+                isClosing = false;
             }
         }
     }

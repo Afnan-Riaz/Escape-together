@@ -11,22 +11,24 @@ public class LevelManager : MonoBehaviour
     public PlayerInteraction player1;
     public PlayerInteraction player2;
     public GameObject pauseMenu;
+    private bool isPaused = false;
     public GameObject levelCompleteMenu;
     public GameObject gameoverMenu;
 
-    private PlayerInput inputActions;
+    public InputActionAsset uiControlsAsset;
+    private InputAction pauseAction;
 
     public float levelTime;
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player1"))
+        if (other.gameObject.name == "Player1")
         {
             levelMessage.text = "Player 1 has escaped.";
             player1.hasEscaped = true;
         }
-        if (other.gameObject.CompareTag("Player2"))
+        if (other.gameObject.name == "Player2")
         {
             levelMessage.text = "Player 2 has escaped.";
             player2.hasEscaped = true;
@@ -35,8 +37,11 @@ public class LevelManager : MonoBehaviour
     }
     void Awake()
     {
-        inputActions = GetComponent<PlayerInput>();
-        inputActions.actions["Pause"].performed += OnPause;
+        var map = uiControlsAsset.FindActionMap("UI");
+        pauseAction = map.FindAction("Pause");
+
+        pauseAction.Enable();
+        pauseAction.performed += OnPause;
 
         timeLeftText.text = FormatTime(levelTime);
         Time.timeScale = 1f;
@@ -72,7 +77,15 @@ public class LevelManager : MonoBehaviour
 
     public void OnPause(InputAction.CallbackContext context)
     {
-        Pause();
+        if(isPaused)
+        {
+            Continue();
+        }
+        else
+        {
+            Pause();
+        }
+        isPaused = !isPaused;
     }
     public void Pause()
     {
