@@ -7,12 +7,16 @@ public class PlayerInteraction : MonoBehaviour
     public float interactRange = 3f;
     public TextMeshProUGUI messageText;
     public bool hasKey = false;
+    public bool hasEscaped;
 
     private Key nearbyKey = null;
     private Door nearbyDoor = null;
+    private Lever nearbyLever = null;
+    private ColorTile nearbyTile = null;
+
     private PlayerInput playerInput;
     private InputAction interactAction;
-    public bool hasEscaped;
+
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
@@ -20,6 +24,7 @@ public class PlayerInteraction : MonoBehaviour
         interactAction.Enable();
         interactAction.performed += OnInteracting;
     }
+
     void Update()
     {
         DetectNearbyObjects();
@@ -30,20 +35,22 @@ public class PlayerInteraction : MonoBehaviour
         }
         else if (nearbyDoor != null && !nearbyDoor.isUnlocked)
         {
-            if (hasKey)
-            {
-                messageText.text = "Interact to unlock door";
-            }
-            else
-            {
-                messageText.text = "The door is locked";
-            }
+            messageText.text = hasKey ? "Interact to unlock door" : "The door is locked";
+        }
+        else if (nearbyLever != null)
+        {
+            messageText.text = "Interact to pull lever";
+        }
+        else if (nearbyTile != null)
+        {
+            messageText.text = "Interact to change color";
         }
         else
         {
             messageText.text = "";
         }
     }
+
     public void OnInteracting(InputAction.CallbackContext context)
     {
         if (nearbyKey != null && !hasKey)
@@ -53,38 +60,53 @@ public class PlayerInteraction : MonoBehaviour
             messageText.text = "";
             nearbyKey = null;
         }
-        else if (nearbyDoor != null && !nearbyDoor.isUnlocked)
+        else if (nearbyDoor != null && !nearbyDoor.isUnlocked && hasKey)
         {
-            if (hasKey)
-            {
-                nearbyDoor.Unlock();
-                messageText.text = "";
-                nearbyDoor = null;
-            }
+            nearbyDoor.Unlock();
+            messageText.text = "";
+            nearbyDoor = null;
+        }
+        else if (nearbyLever != null)
+        {
+            nearbyLever.Toggle();
+        }
+        else if (nearbyTile != null)
+        {
+            nearbyTile.CycleColor();
         }
     }
+
     void DetectNearbyObjects()
     {
         nearbyKey = null;
         nearbyDoor = null;
+        nearbyLever = null;
+        nearbyTile = null;
 
-        Key[] allKeys = FindObjectsByType<Key>(FindObjectsSortMode.None);
-        foreach (var key in allKeys)
-        {
+        float closestTileDist = interactRange;
+
+        foreach (var key in FindObjectsByType<Key>(FindObjectsSortMode.None))
             if (Vector3.Distance(transform.position, key.transform.position) < interactRange)
-            {
                 nearbyKey = key;
-                break;
+
+        foreach (var door in FindObjectsByType<Door>(FindObjectsSortMode.None)){
+            if (Vector3.Distance(transform.position, door.transform.position) < interactRange){
+                nearbyDoor = door;
             }
         }
+        foreach (var lever in FindObjectsByType<Lever>(FindObjectsSortMode.None))
+            if (Vector3.Distance(transform.position, lever.transform.position) < interactRange)
+                nearbyLever = lever;
 
-        Door[] allDoors = FindObjectsByType<Door>(FindObjectsSortMode.None);
-        foreach (var door in allDoors)
+        foreach (var tile in FindObjectsByType<ColorTile>(FindObjectsSortMode.None))
         {
-            if (Vector3.Distance(transform.position, door.transform.position) < interactRange)
+            if (!tile.isInputTile) continue;
+
+            float dist = Vector3.Distance(transform.position, tile.transform.position);
+            if (dist < closestTileDist)
             {
-                nearbyDoor = door;
-                break;
+                closestTileDist = dist;
+                nearbyTile = tile;
             }
         }
     }

@@ -32,7 +32,7 @@ public class ButtonDoor : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !isPressed)
+        if (!isPressed)
         {
             isPressed = true;
             rend.material = pressedMaterial;
@@ -42,7 +42,7 @@ public class ButtonDoor : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player") && isPressed)
+        if (isPressed)
         {
             isPressed = false;
             rend.material = idleMaterial;
