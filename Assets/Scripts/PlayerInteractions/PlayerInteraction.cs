@@ -12,6 +12,7 @@ public class PlayerInteraction : MonoBehaviour
     private Key nearbyKey = null;
     private Door nearbyDoor = null;
     private Lever nearbyLever = null;
+    private DualLever nearbyDualLever = null;
     private ColorTile nearbyTile = null;
 
     private PlayerInput playerInput;
@@ -38,6 +39,10 @@ public class PlayerInteraction : MonoBehaviour
             messageText.text = hasKey ? "Interact to unlock door" : "The door is locked";
         }
         else if (nearbyLever != null)
+        {
+            messageText.text = "Interact to pull lever";
+        }
+        else if (nearbyDualLever != null)
         {
             messageText.text = "Interact to pull lever";
         }
@@ -70,6 +75,10 @@ public class PlayerInteraction : MonoBehaviour
         {
             nearbyLever.Toggle();
         }
+        else if (nearbyDualLever != null)
+        {
+            nearbyDualLever.Toggle();
+        }
         else if (nearbyTile != null)
         {
             nearbyTile.CycleColor();
@@ -81,6 +90,7 @@ public class PlayerInteraction : MonoBehaviour
         nearbyKey = null;
         nearbyDoor = null;
         nearbyLever = null;
+        nearbyDualLever = null;
         nearbyTile = null;
 
         float closestTileDist = interactRange;
@@ -97,6 +107,10 @@ public class PlayerInteraction : MonoBehaviour
         foreach (var lever in FindObjectsByType<Lever>(FindObjectsSortMode.None))
             if (Vector3.Distance(transform.position, lever.transform.position) < interactRange)
                 nearbyLever = lever;
+
+        foreach (var dualLever in FindObjectsByType<DualLever>(FindObjectsSortMode.None))
+            if (Vector3.Distance(transform.position, dualLever.transform.position) < interactRange)
+                nearbyDualLever = dualLever;
 
         foreach (var tile in FindObjectsByType<ColorTile>(FindObjectsSortMode.None))
         {

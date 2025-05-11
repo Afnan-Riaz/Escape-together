@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class Lever : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class Lever : MonoBehaviour
     public float moveSpeed = 2f;
     private bool isOpen = false;
     public Rigidbody ball;
+    public string message;
+    public float messageDuration = 2f;
+    public TextMeshProUGUI messageLabel;
+    private Coroutine messageRoutine;
+
 
     private bool hasAppliedForce = false;
     public Vector3 forceDirection = new Vector3(1, 0, 0);
@@ -24,6 +30,24 @@ public class Lever : MonoBehaviour
             ApplyForceToBall();
         }
     }
+    void ShowMessage(string message, float duration = 2f)
+    {
+        if (messageRoutine != null)
+            StopCoroutine(messageRoutine);
+
+        messageRoutine = StartCoroutine(ShowMessageRoutine(message, duration));
+    }
+
+    IEnumerator ShowMessageRoutine(string message, float duration)
+    {
+        if (messageLabel != null)
+            messageLabel.text = message;
+
+        yield return new WaitForSeconds(duration);
+
+        if (messageLabel != null)
+            messageLabel.text = "";
+    }
 
     public void Open(){
         isOpen = true;
@@ -33,6 +57,11 @@ public class Lever : MonoBehaviour
     }
     public void Toggle()
     {
+        if (message != null)
+        {
+            ShowMessage(message, messageDuration);
+        }
+
         isDown = !isDown;
 
         if (isDown)
