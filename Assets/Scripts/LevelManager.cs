@@ -42,8 +42,9 @@ public class LevelManager : MonoBehaviour
 
         pauseAction.Enable();
         pauseAction.performed += OnPause;
-
-        timeLeftText.text = FormatTime(levelTime);
+        if(timeLeftText != null){
+            timeLeftText.text = FormatTime(levelTime);
+        }
         Time.timeScale = 1f;
     }
 
@@ -59,12 +60,14 @@ public class LevelManager : MonoBehaviour
 
         if (!levelCompleted)
         {
-            levelTime -= Time.deltaTime;
-            timeLeftText.text = FormatTime(levelTime);
+            if(timeLeftText != null){
+                levelTime -= Time.deltaTime;
+                timeLeftText.text = FormatTime(levelTime);
 
-            if (levelTime < 0)
-            {
-                GameOver();
+                if (levelTime < 0)
+                {
+                    GameOver();
+                }
             }
         }
     }
@@ -127,6 +130,7 @@ public class LevelManager : MonoBehaviour
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int nextSceneIndex = currentSceneIndex + 1;
 
+        Debug.Log("Loading next level: " + nextSceneIndex);
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             Time.timeScale = 1;
