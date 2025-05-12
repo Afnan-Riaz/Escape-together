@@ -70,7 +70,7 @@ public class LevelManager : MonoBehaviour
     }
     IEnumerator HandleLevelComplete()
     {
-        yield return new WaitForSeconds(1f); // wait 1 real-time second
+        yield return new WaitForSeconds(1f); 
         levelCompleteMenu.SetActive(true);
         Time.timeScale = 0f;
     }
@@ -127,7 +127,6 @@ public class LevelManager : MonoBehaviour
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int nextSceneIndex = currentSceneIndex + 1;
 
-        // Optional: Check if next scene index is valid
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             Time.timeScale = 1;
@@ -136,8 +135,6 @@ public class LevelManager : MonoBehaviour
         else
         {
             Debug.Log("No more levels. You're at the last one!");
-            // You can loop back to main menu or restart:
-            // SceneManager.LoadSceneAsync(0);
         }
     }
 

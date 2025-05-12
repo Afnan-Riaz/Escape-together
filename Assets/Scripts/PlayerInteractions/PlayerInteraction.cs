@@ -36,7 +36,22 @@ public class PlayerInteraction : MonoBehaviour
         }
         else if (nearbyDoor != null && !nearbyDoor.isUnlocked)
         {
-            messageText.text = hasKey ? "Interact to unlock door" : "The door is locked";
+            DepositPlatform platform = FindObjectOfType<DepositPlatform>();
+            if (!hasKey)
+            {
+                messageText.text = "The door is locked";
+            }
+            else if (platform == null)
+            {
+                messageText.text = "Interact to unlock door";
+            }
+            else
+            {
+                if (platform.Completed)
+                    messageText.text = "Interact to unlock door";
+                else
+                    messageText.text = $"Collect all cubes to unlock ({platform.DepositedCount}/{platform.totalCubes})";
+            }
         }
         else if (nearbyLever != null)
         {
@@ -64,22 +79,35 @@ public class PlayerInteraction : MonoBehaviour
             Destroy(nearbyKey.gameObject);
             messageText.text = "";
             nearbyKey = null;
+            return;
         }
-        else if (nearbyDoor != null && !nearbyDoor.isUnlocked && hasKey)
+
+        if (nearbyDoor != null && !nearbyDoor.isUnlocked && hasKey)
         {
-            nearbyDoor.Unlock();
-            messageText.text = "";
-            nearbyDoor = null;
+            DepositPlatform platform = FindObjectOfType<DepositPlatform>();
+            bool canUnlock = (platform == null) || platform.Completed;
+            if (canUnlock)
+            {
+                nearbyDoor.Unlock();
+                messageText.text = "";
+                nearbyDoor = null;
+            }
+            return;
         }
-        else if (nearbyLever != null)
+
+        if (nearbyLever != null)
         {
             nearbyLever.Toggle();
+            return;
         }
-        else if (nearbyDualLever != null)
+
+        if (nearbyDualLever != null)
         {
             nearbyDualLever.Toggle();
+            return;
         }
-        else if (nearbyTile != null)
+
+        if (nearbyTile != null)
         {
             nearbyTile.CycleColor();
         }
@@ -99,11 +127,10 @@ public class PlayerInteraction : MonoBehaviour
             if (Vector3.Distance(transform.position, key.transform.position) < interactRange)
                 nearbyKey = key;
 
-        foreach (var door in FindObjectsByType<Door>(FindObjectsSortMode.None)){
-            if (Vector3.Distance(transform.position, door.transform.position) < interactRange){
+        foreach (var door in FindObjectsByType<Door>(FindObjectsSortMode.None))
+            if (Vector3.Distance(transform.position, door.transform.position) < interactRange)
                 nearbyDoor = door;
-            }
-        }
+
         foreach (var lever in FindObjectsByType<Lever>(FindObjectsSortMode.None))
             if (Vector3.Distance(transform.position, lever.transform.position) < interactRange)
                 nearbyLever = lever;
