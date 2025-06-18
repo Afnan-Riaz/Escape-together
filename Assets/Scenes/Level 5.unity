@@ -3252,7 +3252,7 @@ MonoBehaviour:
   levelCompleteMenu: {fileID: 1530113172}
   gameoverMenu: {fileID: 1568102052}
   uiControlsAsset: {fileID: -944628639613478452, guid: b2d82c5c0514e2d49a0542a503f39cee, type: 3}
-  levelTime: 600
+  levelTime: 60
 --- !u!65 &457104901
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11006,7 +11006,7 @@ MonoBehaviour:
   levelCompleteMenu: {fileID: 0}
   gameoverMenu: {fileID: 0}
   uiControlsAsset: {fileID: -944628639613478452, guid: b2d82c5c0514e2d49a0542a503f39cee, type: 3}
-  levelTime: 600
+  levelTime: 60
 --- !u!1001 &2035673111
 PrefabInstance:
   m_ObjectHideFlags: 0
